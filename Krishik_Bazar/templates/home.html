@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Krishi Bazar - Nepal's Premier Agricultural Marketplace</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Roboto+Slab:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fadeIn { animation: fadeIn 0.6s ease-out; }
+        .hover-scale:hover { transform: scale(1.05); transition: transform 0.3s ease; }
+        .dropdown-menu { display: none; }
+        .dropdown:hover .dropdown-menu { display: block; }
+        .price-tag {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background: #059669;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+        .hero-bg { background-attachment: fixed; }
+        .nav-link.active { color: #059669; border-bottom: 2px solid #059669; }
+        .newsletter-bg { background: linear-gradient(rgba(0, 100, 0, 0.8), rgba(0, 100, 0, 0.8)), url('https://images.unsplash.com/photo-1500595046743-ddf4d3d753fd?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80') center/cover no-repeat; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 min-h-screen flex flex-col font-poppins">
+    <!-- Special Offer Banner -->
+    <div class="bg-gradient-to-r from-yellow-400 to-yellow-500 text-black text-center py-3 px-4 text-sm font-medium">
+        <span class="animate-pulse"><i class="fas fa-tractor"></i></span> 
+        Special Offer: Free Delivery on Orders Over NPR 5000 This Week! 
+        <span class="animate-pulse"><i class="fas fa-seedling"></i></span>
+    </div>
+
+    <!-- Navigation Bar -->
+    <nav class="bg-white shadow-lg sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <!-- Logo -->
+            <a href="index.html" class="text-2xl font-bold flex items-center text-green-800">
+                <img src="pages/krisik.png" alt="Krishi Bazar Logo" class="h-10 w-10 mr-2 rounded-full">
+                <span class="hidden sm:inline font-roboto-slab">Krishik Bazar</span>
+            </a>
+
+            <!-- Navigation Links -->
+            <div class="hidden lg:flex space-x-1 items-center">
+                <a href="index.html" class="nav-link px-4 py-2 hover:text-green-700 transition font-medium active">Home</a>
+                <a href="" class="nav-link px-4 py-2 hover:text-green-700 transition font-medium">Products</a>
+                <a href="pages/market.html" class="nav-link px-4 py-2 hover:text-green-700 transition font-medium">Market Prices</a>
+                <a href="" class="nav-link px-4 py-2 hover:text-green-700 transition font-medium">Add Product</a>
+                <a href="pages/services.html" class="nav-link px-4 py-2 hover:text-green-700 transition font-medium">Services</a>
+                <a href="contact.html" class="nav-link px-4 py-2 hover:text-green-700 transition font-medium">Contact</a>
+                {% if user.is_authenticated %}
+                         <a href="{% url 'profile' %}" class="nav-link px-4 py-2 hover:text-green-700 transition font-medium">Profile</a>
+                {% else %}
+                {% endif %}
+                <!-- Search Bar -->
+                <div class="relative mx-2">
+                    <input type="text" placeholder="Search products..." class="pl-10 pr-4 py-2 border rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent w-64">
+                    <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                </div>
+                <!-- Auth Buttons -->
+                <div id="auth-buttons" class="ml-4 flex items-center space-x-2">
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'logout' %}" id="logoutBtn" class="auth-links bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition font-medium flex items-center">
+                            <i class="fas fa-sign-out-alt mr-2"></i> Logout
+                        </a>
+                    {% else %}
+                        <a href="{% url 'login' %}" id="loginLink" class="auth-links bg-green-700 text-white px-4 py-2 rounded-lg hover:bg-green-800 transition font-medium flex items-center">
+                            <i class="fas fa-user mr-2"></i> Login
+                        </a>
+                        <a href="{% url 'register' %}" class="auth-links text-green-700 hover:text-green-900 transition font-medium">Register</a>
+                    {% endif %}
+                </div>
+
+                <!-- User Menu -->
+                <div class="hidden relative user-links" id="userMenu">
+                    <button class="flex items-center space-x-2 text-green-700 hover:text-green-900">
+                        <i class="fas fa-user-circle text-xl"></i>
+                        <span id="userEmail" class="user-info"></span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="dropdown-menu absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl py-2 z-50">
+                        <a href="pages/products.html" class="block px-4 py-2 text-gray-800 hover:bg-gray-100">Products</a>
+                        <a href="pages/orders.html" class="block px-4 py-2 text-gray-800 hover:bg-gray-100">Orders</a>
+                        <a href="{% url 'logout' %}" id="dropdownLogoutBtn" class="block px-4 py-2 text-red-600 hover:bg-gray-100">Logout</a>
+                    </div>
+                </div>
+                <!-- Cart -->
+                <a href="pages/cart.html" class="ml-2 text-gray-700 hover:text-green-700 relative">
+                    <i class="fas fa-shopping-cart text-xl"></i>
+                    <span id="cartCount" class="absolute -top-2 -right-2 bg-yellow-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">0</span>
+                </a>
+            </div>
+
+        </nav>
+
+        <!-- Hero Section -->
+        <main class="flex-grow">
+            <section class="hero-bg text-white py-20 md:py-32 px-4" style="background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://images.unsplash.com/photo-1500595046743-ddf4d3d753fd?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80') center/cover no-repeat;">
+                <div class="container mx-auto text-center animate-fadeIn">
+                    <h1 class="text-4xl md:text-6xl font-bold mb-6 leading-tight font-roboto-slab">Empowering Nepal's Agricultural Community</h1>
+                    <p class="text-xl mb-8 max-w-2xl mx-auto">Discover fresh, organic produce directly from farmers. Support local agriculture and enjoy fair prices.</p>
+                    <div class="flex flex-col sm:flex-row justify-center gap-4">
+                        <a href="pages/products.html" class="bg-yellow-500 hover:bg-yellow-600 text-black font-bold px-8 py-3 rounded-lg transition duration-300 transform hover-scale">
+                            Shop Now <i class="fas fa-arrow-right ml-2"></i>
+                        </a>
+                        <a href="pages/market.html" class="bg-white hover:bg-gray-100 text-green-800 font-bold px-8 py-3 rounded-lg transition duration-300">
+                            Check Market Prices
+                        </a>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Stats Section -->
+            <section class="py-12 bg-white">
+                <div class="container mx-auto px-4">
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                        <div class="stat-card bg-green-50 rounded-lg p-6 text-center border border-green-100 hover-scale">
+                            <div class="text-3xl font-bold text-green-700 mb-2">5,000+</div>
+                            <div class="text-gray-600">Active Farmers</div>
+                        </div>
+                        <div class="stat-card bg-green-50 rounded-lg p-6 text-center border border-green-100 hover-scale">
+                            <div class="text-3xl font-bold text-green-700 mb-2">10,000+</div>
+                            <div class="text-gray-600">Products Listed</div>
+                        </div>
+                        <div class="stat-card bg-green-50 rounded-lg p-6 text-center border border-green-100 hover-scale">
+                            <div class="text-3xl font-bold text-green-700 mb-2">75+</div>
+                            <div class="text-gray-600">Districts Covered</div>
+                        </div>
+                        <div class="stat-card bg-green-50 rounded-lg p-6 text-center border border-green-100 hover-scale">
+                            <div class="text-3xl font-bold text-green-700 mb-2">NPR 50M+</div>
+                            <div class="text-gray-600">Annual Transactions</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Popular Categories Section -->
+            <section class="py-16 bg-gray-50">
+                <div class="container mx-auto px-4">
+                    <h2 class="text-3xl font-bold text-center mb-12 text-green-800 font-roboto-slab">Popular Categories</h2>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6">
+                        <a href="products.html#fresh-produce" class="bg-white rounded-lg p-6 text-center shadow-sm hover:shadow-md transition duration-300 border border-gray-100 hover-scale">
+                            <div class="text-4xl mb-4 text-green-600"><i class="fas fa-apple-alt"></i></div>
+                            <h3 class="font-semibold">Fresh Produce</h3>
+                        </a>
+                        <a href="pages/products.html#seeds" class="bg-white rounded-lg p-6 text-center shadow-sm hover:shadow-md transition duration-300 border border-gray-100 hover-scale">
+                            <div class="text-4xl mb-4 text-green-600"><i class="fas fa-seedling"></i></div>
+                            <h3 class="font-semibold">Seeds & Plants</h3>
+                        </a>
+                        <a href="pages/products.html#grains" class="bg-white rounded-lg p-6 text-center shadow-sm hover:shadow-md transition duration-300 border border-gray-100 hover-scale">
+                            <div class="text-4xl mb-4 text-green-600"><i class="fas fa-wheat"></i></div>
+                            <h3 class="font-semibold">Grains</h3>
+                        </a>
+                        <a href="pages/products.html#equipment" class="bg-white rounded-lg p-6 text-center shadow-sm hover:shadow-md transition duration-300 border border-gray-100 hover-scale">
+                            <div class="text-4xl mb-4 text-green-600"><i class="fas fa-tractor"></i></div>
+                            <h3 class="font-semibold">Equipment</h3>
+                        </a>
+                        <a href="pages/products.html#fertilizers" class="bg-white rounded-lg p-6 text-center shadow-sm hover:shadow-md transition duration-300 border border-gray-100 hover-scale">
+                            <div class="text-4xl mb-4 text-green-600"><i class="fas fa-flask"></i></div>
+                            <h3 class="font-semibold">Fertilizers</h3>
+                        </a>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Featured Products Section -->
+            <section class="py-16 bg-white">
+                <div class="container mx-auto px-4">
+                    <div class="flex justify-between items-center mb-8">
+                        <h2 class="text-3xl font-bold text-green-800 font-roboto-slab">Featured Products</h2>
+                        <a href="pages/products.html" class="text-green-700 hover:text-green-900 font-medium flex items-center">
+                            View All <i class="fas fa-arrow-right ml-2"></i>
+                        </a>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8" id="featuredProducts">
+                        <div class="product-card bg-white rounded-lg overflow-hidden shadow-md border border-gray-100 transition duration-300 hover-scale" data-product-id="1">
+                            <div class="relative h-48 overflow-hidden">
+                                <img src="https://images.unsplash.com/photo-1582284540020-8acbe03f4924?ixlib=rb-4.0.3&auto=format&fit=crop&w=735&q=80" alt="Organic Tomatoes" class="w-full h-full object-cover">
+                                <div class="price-tag">NPR 80/kg</div>
+                                <div class="absolute top-2 left-2 bg-green-600 text-white text-xs px-2 py-1 rounded">Organic</div>
+                            </div>
+                            <div class="p-4">
+                                <h3 class="font-bold text-lg mb-1">Organic Tomatoes</h3>
+                                <div class="flex items-center text-sm text-gray-600 mb-2">
+                                    <i class="fas fa-map-marker-alt mr-1 text-green-600"></i> Kathmandu
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <div class="flex items-center text-yellow-500">
+                                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i>
+                                        <span class="text-gray-600 text-xs ml-1">(24)</span>
+                                    </div>
+                                    <a href="pages/cart.html" class="text-green-700 hover:text-green-900"><i class="fas fa-shopping-cart"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="product-card bg-white rounded-lg overflow-hidden shadow-md border border-gray-100 transition duration-300 hover-scale" data-product-id="2">
+                            <div class="relative h-48 overflow-hidden">
+                                <img src="https://images.unsplash.com/photo-1547496502-affa22d38842?ixlib=rb-4.0.3&auto=format&fit=crop&w=687&q=80" alt="Basmati Rice" class="w-full h-full object-cover">
+                                <div class="price-tag">NPR 120/kg</div>
+                            </div>
+                            <div class="p-4">
+                                <h3 class="font-bold text-lg mb-1">Premium Basmati Rice</h3>
+                                <div class="flex items-center text-sm text-gray-600 mb-2">
+                                    <i class="fas fa-map-marker-alt mr-1 text-green-600"></i> Chitwan
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <div class="flex items-center text-yellow-500">
+                                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="far fa-star"></i>
+                                        <span class="text-gray-600 text-xs ml-1">(18)</span>
+                                    </div>
+                                    <a href="pages/cart.html" class="text-green-700 hover:text-green-900"><i class="fas fa-shopping-cart"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="product-card bg-white rounded-lg overflow-hidden shadow-md border border-gray-100 transition duration-300 hover-scale" data-product-id="3">
+                            <div class="relative h-48 overflow-hidden">
+                                <img src="https://images.unsplash.com/photo-1518977676601-b53f82aba655?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80" alt="Fresh Potatoes" class="w-full h-full object-cover">
+                                <div class="price-tag">NPR 50/kg</div>
+                                <div class="absolute top-2 left-2 bg-green-600 text-white text-xs px-2 py-1 rounded">New Harvest</div>
+                            </div>
+                            <div class="p-4">
+                                <h3 class="font-bold text-lg mb-1">Fresh Potatoes</h3>
+                                <div class="flex items-center text-sm text-gray-600 mb-2">
+                                    <i class="fas fa-map-marker-alt mr-1 text-green-600"></i> Pokhara
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <div class="flex items-center text-yellow-500">
+                                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                                        <span class="text-gray-600 text-xs ml-1">(32)</span>
+                                    </div>
+                                    <a href="pages/cart.html" class="text-green-700 hover:text-green-900"><i class="fas fa-shopping-cart"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="product-card bg-white rounded-lg overflow-hidden shadow-md border border-gray-100 transition duration-300 hover-scale" data-product-id="4">
+                            <div class="relative h-48 overflow-hidden">
+                                <img src="https://images.unsplash.com/photo-1601493700631-2b16ec4b4716?ixlib=rb-4.0.3&auto=format&fit=crop&w=735&q=80" alt="Green Peas" class="w-full h-full object-cover">
+                                <div class="price-tag">NPR 90/kg</div>
+                            </div>
+                            <div class="p-4">
+                                <h3 class="font-bold text-lg mb-1">Sweet Green Peas</h3>
+                                <div class="flex items-center text-sm text-gray-600 mb-2">
+                                    <i class="fas fa-map-marker-alt mr-1 text-green-600"></i> Rupandehi
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <div class="flex items-center text-yellow-500">
+                                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i><i class="far fa-star"></i>
+                                        <span class="text-gray-600 text-xs ml-1">(12)</span>
+                                    </div>
+                                    <a href="pages/cart.html" class="text-green-700 hover:text-green-900"><i class="fas fa-shopping-cart"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- How It Works Section -->
+            <section class="py-16 bg-green-50">
+                <div class="container mx-auto px-4">
+                    <h2 class="text-3xl font-bold text-center mb-12 text-green-800 font-roboto-slab">How Krishi Bazar Works</h2>
+                    <div class="grid md:grid-cols-3 gap-8">
+                        <div class="feature-card bg-white p-8 rounded-lg shadow-md border border-green-100 transition duration-300 text-center hover-scale">
+                            <div class="bg-green-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
+                                <i class="fas fa-user-plus text-3xl text-green-700"></i>
+                            </div>
+                            <h3 class="text-xl font-bold mb-3">Join the Community</h3>
+                            <p class="text-gray-600">Sign up as a farmer or buyer in minutes. Connect with a vibrant agricultural network.</p>
+                        </div>
+                        <div class="feature-card bg-white p-8 rounded-lg shadow-md border border-green-100 transition duration-300 text-center hover-scale">
+                            <div class="bg-green-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
+                                <i class="fas fa-shopping-basket text-3xl text-green-700"></i>
+                            </div>
+                            <h3 class="text-xl font-bold mb-3">List or Shop</h3>
+                            <p class="text-gray-600">Farmers list fresh produce; buyers explore a wide range of organic products.</p>
+                        </div>
+                        <div class="feature-card bg-white p-8 rounded-lg shadow-md border border-green-100 transition duration-300 text-center hover-scale">
+                            <div class="bg-green-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
+                                <i class="fas fa-handshake text-3xl text-green-700"></i>
+                            </div>
+                            <h3 class="text-xl font-bold mb-3">Transact Securely</h3>
+                            <p class="text-gray-600">Direct communication and secure payments ensure smooth transactions.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Market Prices Section -->
+            <section class="py-16 bg-white">
+                <div class="container mx-auto px-4">
+                    <div class="flex justify-between items-center mb-8">
+                        <h2 class="text-3xl font-bold text-green-800 font-roboto-slab">Today's Market Prices</h2>
+                        <a href="market.html" class="text-green-700 hover:text-green-900 font-medium flex items-center">
+                            View All Prices <i class="fas fa-arrow-right ml-2"></i>
+                        </a>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full bg-white rounded-lg overflow-hidden">
+                            <thead class="bg-green-700 text-white">
+                                <tr>
+                                    <th class="py-3 px-4 text-left">Product</th>
+                                    <th class="py-3 px-4 text-left">Market</th>
+                                    <th class="py-3 px-4 text-right">Min Price (NPR)</th>
+                                    <th class="py-3 px-4 text-right">Max Price (NPR)</th>
+                                    <th class="py-3 px-4 text-right">Avg Price (NPR)</th>
+                                    <th class="py-3 px-4 text-right">Trend</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">
+                                <tr class="hover:bg-green-50">
+                                    <td class="py-3 px-4">Tomato</td>
+                                    <td class="py-3 px-4">Kalimati</td>
+                                    <td class="py-3 px-4 text-right">75</td>
+                                    <td class="py-3 px-4 text-right">90</td>
+                                    <td class="py-3 px-4 text-right">82</td>
+                                    <td class="py-3 px-4 text-right text-green-600">
+                                        <i class="fas fa-arrow-up"></i> 5%
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-green-50">
+                                    <td class="py-3 px-4">Potato</td>
+                                    <td class="py-3 px-4">Narayangarh</td>
+                                    <td class="py-3 px-4 text-right">45</td>
+                                    <td class="py-3 px-4 text-right">55</td>
+                                    <td class="py-3 px-4 text-right">50</td>
+                                    <td class="py-3 px-4 text-right text-red-600">
+                                        <i class="fas fa-arrow-down"></i> 2%
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-green-50">
+                                    <td class="py-3 px-4">Onion</td>
+                                    <td class="py-3 px-4">Pokhara</td>
+                                    <td class="py-3 px-4 text-right">60</td>
+                                    <td class="py-3 px-4 text-right">75</td>
+                                    <td class="py-3 px-4 text-right">68</td>
+                                    <td class="py-3 px-4 text-right text-green-600">
+                                        <i class="fas fa-arrow-up"></i> 3%
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-green-50">
+                                    <td class="py-3 px-4">Cauliflower</td>
+                                    <td class="py-3 px-4">Hetauda</td>
+                                    <td class="py-3 px-4 text-right">55</td>
+                                    <td class="py-3 px-4 text-right">70</td>
+                                    <td class="py-3 px-4 text-right">62</td>
+                                    <td class="py-3 px-4 text-right text-gray-600">
+                                        <i class="fas fa-equals"></i>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Services Section -->
+            <section class="py-16 bg-gray-50">
+                <div class="container mx-auto px-4">
+                    <h2 class="text-3xl font-bold text-center mb-12 text-green-800 font-roboto-slab">Our Services</h2>
+                    <div class="grid md:grid-cols-3 gap-8">
+                        <div class="service-card bg-white p-8 rounded-lg shadow-md border border-green-100 transition duration-300 text-center hover-scale">
+                            <div class="bg-green-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
+                                <i class="fas fa-truck text-3xl text-green-700"></i>
+                            </div>
+                            <h3 class="text-xl font-bold mb-3">Logistics Support</h3>
+                            <p class="text-gray-600">Reliable delivery options to ensure fresh produce reaches buyers quickly.</p>
+                        </div>
+                        <div class="service-card bg-white p-8 rounded-lg shadow-md border border-green-100 transition duration-300 text-center hover-scale">
+                            <div class="bg-green-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
+                                <i class="fas fa-hand-holding-usd text-3xl text-green-700"></i>
+                            </div>
+                            <h3 class="text-xl font-bold mb-3">Secure Payments</h3>
+                            <p class="text-gray-600">Safe and transparent payment systems for seamless transactions.</p>
+                        </div>
+                        <div class="service-card bg-white p-8 rounded-lg shadow-md border border-green-100 transition duration-300 text-center hover-scale">
+                            <div class="bg-green-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
+                                <i class="fas fa-leaf text-3xl text-green-700"></i>
+                            </div>
+                            <h3 class="text-xl font-bold mb-3">Quality Assurance</h3>
+                            <p class="text-gray-600">Verified farmers and quality checks for trusted products.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Testimonials Section -->
+            <section class="py-16 bg-white">
+                <div class="container mx-auto px-4">
+                    <h2 class="text-3xl font-bold text-center mb-12 text-green-800 font-roboto-slab">What Our Users Say</h2>
+                    <div class="grid md:grid-cols-3 gap-8">
+                        <div class="testimonial-card bg-white p-6 rounded-lg shadow-md border border-gray-100">
+                            <div class="flex items-center mb-4">
+                                <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="User" class="w-12 h-12 rounded-full mr-4">
+                                <div>
+                                    <h4 class="font-bold">Rajesh Thapa</h4>
+                                    <div class="flex text-yellow-500 text-sm">
+                                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <p class="text-gray-600 italic">"Krishi Bazar has transformed my farming business. I now get fair prices without middlemen."</p>
+                        </div>
+                        <div class="testimonial-card bg-white p-6 rounded-lg shadow-md border border-gray-100">
+                            <div class="flex items-center mb-4">
+                                <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="User" class="w-12 h-12 rounded-full mr-4">
+                                <div>
+                                    <h4 class="font-bold">Sita Gurung</h4>
+                                    <div class="flex text-yellow-500 text-sm">
+                                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <p class="text-gray-600 italic">"Finding quality local produce is so easy now. Krishi Bazar ensures freshness and reliability."</p>
+                        </div>
+                        <div class="testimonial-card bg-white p-6 rounded-lg shadow-md border border-gray-100">
+                            <div class="flex items-center mb-4">
+                                <img src="https://randomuser.me/api/portraits/men/78.jpg" alt="User" class="w-12 h-12 rounded-full mr-4">
+                                <div>
+                                    <h4 class="font-bold">Bikash Rai</h4>
+                                    <div class="flex text-yellow-500 text-sm">
+                                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <p class="text-gray-600 italic">"The market price data helps me plan my crops and negotiate better deals."</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Newsletter Section -->
+            <section class="newsletter-bg py-20 text-white">
+                <div class="container mx-auto px-4 text-center">
+                    <h2 class="text-3xl font-bold mb-4 font-roboto-slab">Stay Updated with Krishi Bazar</h2>
+                    <p class="mb-8 max-w-xl mx-auto text-gray-200">Get the latest market trends, farming tips, and exclusive offers delivered to your inbox.</p>
+                    <div class="max-w-md mx-auto flex flex-col sm:flex-row gap-4">
+                        <input type="email" placeholder="Enter your email address" class="w-full px-6 py-3 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-yellow-500">
+                        <button type="button" class="bg-yellow-500 text-black font-bold px-6 py-3 rounded-lg hover:bg-yellow-600 transition duration-300">Subscribe</button>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="bg-gray-900 text-gray-300 py-12">
+            <div class="container mx-auto px-4 grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="text-2xl font-bold text-white mb-4 font-roboto-slab">Krishi Bazar</h3>
+                    <p class="text-sm">Empowering Nepal's farmers and buyers for a sustainable agricultural future.</p>
+                </div>
+                <div>
+                    <h4 class="font-bold text-white mb-4">Quick Links</h4>
+                    <ul class="space-y-2">
+                        <li><a href="pages/index.html" class="hover:text-white transition">Home</a></li>
+                        <li><a href="pages/products.html" class="hover:text-white transition">Products</a></li>
+                        <li><a href="pages/market.html" class="hover:text-white transition">Market Prices</a></li>
+                        <li><a href="pages/services.html" class="hover:text-white transition">Services</a></li>
+                        <li><a href="pages/add-product.html" class="hover:text-white transition">Add Product</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-bold text-white mb-4">Explore</h4>
+                    <ul class="space-y-2">
+                        <li><a href="pages/products.html" class="hover:text-white transition">Fresh Produce</a></li>
+                        <li><a href="pages/products.html" class="hover:text-white transition">Grains</a></li>
+                        <li><a href="pages/products.html" class="hover:text-white transition">Seeds</a></li>
+                        <li><a href="pages/products.html" class="hover:text-white transition">Equipment</a></li>
+                        <li><a href="pages/products.html" class="hover:text-white transition">Fertilizers</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-bold text-white mb-4">Contact Us</h4>
+                    <p class="text-sm">Krishi Sadak, Kathmandu, Nepal</p>
+                    <p class="text-sm mt-2">Email: support@krishibazar.com</p>
+                    <p class="text-sm">Phone: +977-1-234-5678</p>
+                    <div class="flex space-x-4 mt-4 text-xl">
+                        <a href="#" class="hover:text-white transition"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="hover:text-white transition"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="hover:text-white transition"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="hover:text-white transition"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 mt-8 pt-8 text-center text-sm text-gray-500">
+                &copy; 2025 Krishi Bazar. All Rights Reserved.
+            </div>
+        </footer>
+
+        <!-- Backend Integration Scripts -->
+</body>
+</html>

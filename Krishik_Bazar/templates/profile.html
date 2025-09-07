@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - Krishik Bazar</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Roboto+Slab:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #1a5c40;
+            --secondary: #f5a623;
+            --accent: #3a86ff;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f8f9fa;
+        }
+        
+        .nav-link.active {
+            color: var(--secondary);
+            border-bottom: 2px solid var(--secondary);
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .page {
+            animation: fadeIn 0.4s ease-out;
+        }
+        
+        .newsletter-bg {
+            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), 
+                         url('https://images.unsplash.com/photo-1500382017468-9049fed747ef?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80');
+            background-size: cover;
+            background-position: center;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 min-h-screen flex flex-col">
+    <div class="bg-gradient-to-r from-yellow-400 to-yellow-500 text-black text-center py-3 px-4 text-sm font-medium">
+        <span class="animate-pulse"><i class="fas fa-tractor"></i></span> 
+        Special Offer: Free Delivery on Orders Over NPR 5000 This Week! 
+        <span class="animate-pulse"><i class="fas fa-seedling"></i></span>
+    </div>
+
+    <!-- Navigation Bar -->
+    <nav class="bg-white shadow-lg sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <!-- Logo -->
+            <a href="index.html" class="text-2xl font-bold flex items-center text-green-800">
+                <img src="https://placehold.co/40x40/1a5c40/ffffff?text=KB" alt="Krishi Bazar Logo" class="h-10 w-10 mr-2 rounded-full">
+                <span class="hidden sm:inline font-roboto-slab">Krishik Bazar</span>
+            </a>
+
+            <!-- Navigation Links -->
+            <div class="hidden lg:flex space-x-1 items-center">
+                <a href="{% url 'home' %}" class="nav-link px-4 py-2 hover:text-green-700 transition font-medium">Home</a>
+                <a href="#" class="nav-link px-4 py-2 hover:text-green-700 transition font-medium">Products</a>
+                <a href="#" class="nav-link px-4 py-2 hover:text-green-700 transition font-medium">Market Prices</a>
+                <a href="#" class="nav-link px-4 py-2 hover:text-green-700 transition font-medium">Add Product</a>
+                <a href="#" class="nav-link px-4 py-2 hover:text-green-700 transition font-medium">Services</a>
+                <a href="#" class="nav-link px-4 py-2 hover:text-green-700 transition font-medium">Contact</a>
+                <a href="{% url 'profile' %}" class="nav-link px-4 py-2 hover:text-green-700 transition font-medium active">Profile</a>
+            </div>
+
+            <!-- Search Bar and Auth Buttons -->
+            <div class="flex items-center space-x-4">
+                <div class="relative hidden sm:block">
+                    <input type="text" placeholder="Search products..." class="pl-10 pr-4 py-2 border rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent w-64">
+                    <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                </div>
+                <div id="auth-buttons" class="flex items-center space-x-2">
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'logout' %}" id="logoutBtn" class="auth-links bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition font-medium flex items-center">
+                            <i class="fas fa-sign-out-alt mr-2"></i> Logout
+                        </a>
+                    {% else %}
+                        <a href="{% url 'login' %}" id="loginLink" class="auth-links bg-green-700 text-white px-4 py-2 rounded-lg hover:bg-green-800 transition font-medium flex items-center">
+                            <i class="fas fa-user mr-2"></i> Login
+                        </a>
+                        <a href="{% url 'register' %}" class="auth-links text-green-700 hover:text-green-900 transition font-medium hidden sm:inline">Register</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+    
+    <main class="flex-grow page">
+        <section class="py-16 bg-white">
+            <div class="container mx-auto px-4 max-w-2xl">
+                <h2 class="text-3xl font-bold text-center mb-8 text-green-800">Your Profile</h2>
+
+                <!-- Messages -->
+                {% if messages %}
+                    <ul class="mb-4">
+                    {% for message in messages %}
+                        <li {% if message.tags %} class="{{ message.tags }} text-center text-sm font-medium p-3 rounded-lg {% if 'success' in message.tags %} bg-green-100 text-green-700 {% elif 'error' in message.tags %} bg-red-100 text-red-700 {% endif %}"{% endif %}>{{ message }}</li>
+                    {% endfor %}
+                    </ul>
+                {% endif %}
+
+                <div class="bg-white rounded-lg shadow-md border border-gray-200 p-6">
+                    <div class="flex flex-col sm:flex-row items-center mb-6 text-center sm:text-left">
+                        <img src="https://placehold.co/64x64/1a5c40/ffffff?text={{ user.username|slice:":1"|upper }}" alt="User Profile Image" class="w-16 h-16 rounded-full mr-4 mb-4 sm:mb-0">
+                        <div>
+                            <h3 class="text-xl font-bold text-green-800">{{ user.username }}</h3>
+                            <p class="text-sm text-gray-600 capitalize">{{ user.role }}</p>
+                        </div>
+                    </div>
+                    <form method="POST" action="{% url 'profile_update' %}">
+                        {% csrf_token %}
+                        <div class="mb-4">
+                            <label for="username" class="block text-sm font-medium text-gray-700">Username</label>
+                            <input type="text" id="username" name="username" value="{{ user.username }}" class="w-full px-4 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="Enter your full name">
+                        </div>
+                        <div class="mb-4">
+                            <label for="email" class="block text-sm font-medium text-gray-700">Email Address</label>
+                            <input type="email" id="email" name="email" value="{{ user.email }}" class="w-full px-4 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="Enter your email">
+                        </div>
+                        <div class="mb-4">
+                            <label for="phone" class="block text-sm font-medium text-gray-700">Phone Number</label>
+                            <input type="tel" id="phone" name="phone" value="{{ user.phone|default_if_none:'' }}" class="w-full px-4 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="Enter your phone number">
+                        </div>
+                        <div class="mb-4">
+                            <label for="address" class="block text-sm font-medium text-gray-700">Address</label>
+                            <input type="text" id="address" name="address" value="{{ user.address|default_if_none:'' }}" class="w-full px-4 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="Enter your address">
+                        </div>
+                        <div class="mb-4">
+                            <label for="role" class="block text-sm font-medium text-gray-700">User Role</label>
+                            <select id="role" name="role" class="w-full px-4 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                {% for choice in user.ROLE_CHOICES %}
+                                    <option value="{{ choice.0 }}" {% if choice.0 == user.role %}selected{% endif %}>{{ choice.1 }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="mb-4">
+                            <label for="password" class="block text-sm font-medium text-gray-700">New Password</label>
+                            <input type="password" id="password" name="password" class="w-full px-4 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="Enter new password">
+                        </div>
+                        <div class="mb-4">
+                            <label for="confirm-password" class="block text-sm font-medium text-gray-700">Confirm New Password</label>
+                            <input type="password" id="confirm-password" name="confirm-password" class="w-full px-4 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="Confirm new password">
+                        </div>
+                        <button type="submit" class="w-full bg-green-700 text-white px-4 py-2 rounded-lg hover:bg-green-800 transition font-medium">Update Profile</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-gray-900 text-gray-300 py-12">
+        <div class="container mx-auto px-4 grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div>
+                <h3 class="text-2xl font-bold text-white mb-4">Krishi Bazar</h3>
+                <p class="text-sm">Connecting farmers and buyers across Nepal for a sustainable and prosperous agricultural future.</p>
+            </div>
+            <div>
+                <h4 class="font-bold text-white mb-4">Quick Links</h4>
+                <ul class="space-y-2">
+                    <li><a href="{% url 'home' %}" class="hover:text-white transition">Home</a></li>
+                    <li><a href="#" class="hover:text-white transition">Marketplace</a></li>
+                    <li><a href="#" class="hover:text-white transition">Market Prices</a></li>
+                    <li><a href="#" class="hover:text-white transition">About Us</a></li>
+                    <li><a href="#" class="hover:text-white transition">Contact</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="font-bold text-white mb-4">Categories</h4>
+                <ul class="space-y-2">
+                    <li><a href="#" class="hover:text-white transition">Fresh Produce</a></li>
+                    <li><a href="#" class="hover:text-white transition">Grains</a></li>
+                    <li><a href="#" class="hover:text-white transition">Seeds</a></li>
+                    <li><a href="#" class="hover:text-white transition">Equipment</a></li>
+                    <li><a href="#" class="hover:text-white transition">Fertilizers</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="font-bold text-white mb-4">Contact Us</h4>
+                <p class="text-sm">123 Krishi Sadak, Kathmandu, Nepal</p>
+                <p class="text-sm mt-2">Email: info@krishibazar.com</p>
+                <p class="text-sm">Phone: +977-1-555-5555</p>
+                <div class="flex space-x-4 mt-4 text-xl">
+                    <a href="#" class="hover:text-white transition"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" class="hover:text-white transition"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="hover:text-white transition"><i class="fab fa-instagram"></i></a>
+                    <a href="#" class="hover:text-white transition"><i class="fab fa-linkedin-in"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="border-t border-gray-700 mt-8 pt-8 text-center text-sm text-gray-500">
+            &copy; 2025 Krishik Bazar. All Rights Reserved.
+        </div>
+    </footer>
+</body>
+</html>
+```
+eof
+
+This file now dynamically populates the user profile section using Django template tags like `{{ user.username }}` and `{{ user.email }}`. I also added a `{% csrf_token %}` tag inside the `<form>` for security and a section to display messages from your Django views.
+
+To use this file, you must ensure that your corresponding Django view passes a `user` object to the template context. For example:
+
+```python
+from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
+
+@login_required
+def profile_view(request):
+    return render(request, 'profile.html', {'user': request.user})
