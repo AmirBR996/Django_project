@@ -52,9 +52,11 @@
             <!-- Navigation Links -->
             <div class="hidden lg:flex space-x-1 items-center">
                 <a href="index.html" class="nav-link px-4 py-2 hover:text-green-700 transition font-medium active">Home</a>
-                <a href="" class="nav-link px-4 py-2 hover:text-green-700 transition font-medium">Products</a>
+                <a href="{% url 'products' %}" class="nav-link px-4 py-2 hover:text-green-700 transition font-medium">Products</a>
                 <a href="pages/market.html" class="nav-link px-4 py-2 hover:text-green-700 transition font-medium">Market Prices</a>
-                <a href="" class="nav-link px-4 py-2 hover:text-green-700 transition font-medium">Add Product</a>
+                {% if user.is_authenticated and user.role == 'farmer' %}
+                    <a href="{% url 'add_product' %}" class="nav-link px-4 py-2 hover:text-green-700 transition font-medium active">Add Product</a>
+                {% endif %}
                 <a href="pages/services.html" class="nav-link px-4 py-2 hover:text-green-700 transition font-medium">Services</a>
                 <a href="contact.html" class="nav-link px-4 py-2 hover:text-green-700 transition font-medium">Contact</a>
                 {% if user.is_authenticated %}
@@ -62,10 +64,11 @@
                 {% else %}
                 {% endif %}
                 <!-- Search Bar -->
-                <div class="relative mx-2">
-                    <input type="text" placeholder="Search products..." class="pl-10 pr-4 py-2 border rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent w-64">
-                    <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
-                </div>
+                <form method="GET" action="{% url 'view_products' %}" class="relative">
+                            <input type="text" name="q" value="{{ request.GET.q|default_if_none:'' }}" placeholder="Search products..." class="w-full pl-10 pr-4 py-2 border rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
+                            <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                            <button type="submit" class="hidden">Search</button>
+                        </form>
                 <!-- Auth Buttons -->
                 <div id="auth-buttons" class="ml-4 flex items-center space-x-2">
                     {% if user.is_authenticated %}
@@ -174,95 +177,40 @@
 
             <!-- Featured Products Section -->
             <section class="py-16 bg-white">
-                <div class="container mx-auto px-4">
-                    <div class="flex justify-between items-center mb-8">
-                        <h2 class="text-3xl font-bold text-green-800 font-roboto-slab">Featured Products</h2>
-                        <a href="pages/products.html" class="text-green-700 hover:text-green-900 font-medium flex items-center">
-                            View All <i class="fas fa-arrow-right ml-2"></i>
+    <div class="lg:w-3/4">
+        {% if products %}
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                {% for product in products %}
+                    <div class="bg-white rounded-lg shadow-md overflow-hidden transform hover:scale-105 transition duration-300">
+                        <a href="{% url 'product_detail' product.id %}">
+                            <img src="{{ product.image.url }}" alt="{{ product.name }}" class="w-full h-48 object-cover">
                         </a>
-                    </div>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8" id="featuredProducts">
-                        <div class="product-card bg-white rounded-lg overflow-hidden shadow-md border border-gray-100 transition duration-300 hover-scale" data-product-id="1">
-                            <div class="relative h-48 overflow-hidden">
-                                <img src="https://images.unsplash.com/photo-1582284540020-8acbe03f4924?ixlib=rb-4.0.3&auto=format&fit=crop&w=735&q=80" alt="Organic Tomatoes" class="w-full h-full object-cover">
-                                <div class="price-tag">NPR 80/kg</div>
-                                <div class="absolute top-2 left-2 bg-green-600 text-white text-xs px-2 py-1 rounded">Organic</div>
+                        <div class="p-4">
+                            <h2 class="text-xl font-semibold text-green-700 mb-2">{{ product.name }}</h2>
+                            <p class="text-gray-600 text-sm mb-2">{{ product.description|truncatewords:15 }}</p>
+                            <div class="flex items-center justify-between">
+                                <span class="text-lg font-bold text-green-800">NPR {{ product.price|floatformat:2 }}</span>
+                                <span class="text-sm text-gray-500">Stock: {{ product.stock }} kg</span>
                             </div>
-                            <div class="p-4">
-                                <h3 class="font-bold text-lg mb-1">Organic Tomatoes</h3>
-                                <div class="flex items-center text-sm text-gray-600 mb-2">
-                                    <i class="fas fa-map-marker-alt mr-1 text-green-600"></i> Kathmandu
-                                </div>
-                                <div class="flex justify-between items-center">
-                                    <div class="flex items-center text-yellow-500">
-                                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i>
-                                        <span class="text-gray-600 text-xs ml-1">(24)</span>
-                                    </div>
-                                    <a href="pages/cart.html" class="text-green-700 hover:text-green-900"><i class="fas fa-shopping-cart"></i></a>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="product-card bg-white rounded-lg overflow-hidden shadow-md border border-gray-100 transition duration-300 hover-scale" data-product-id="2">
-                            <div class="relative h-48 overflow-hidden">
-                                <img src="https://images.unsplash.com/photo-1547496502-affa22d38842?ixlib=rb-4.0.3&auto=format&fit=crop&w=687&q=80" alt="Basmati Rice" class="w-full h-full object-cover">
-                                <div class="price-tag">NPR 120/kg</div>
-                            </div>
-                            <div class="p-4">
-                                <h3 class="font-bold text-lg mb-1">Premium Basmati Rice</h3>
-                                <div class="flex items-center text-sm text-gray-600 mb-2">
-                                    <i class="fas fa-map-marker-alt mr-1 text-green-600"></i> Chitwan
-                                </div>
-                                <div class="flex justify-between items-center">
-                                    <div class="flex items-center text-yellow-500">
-                                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="far fa-star"></i>
-                                        <span class="text-gray-600 text-xs ml-1">(18)</span>
-                                    </div>
-                                    <a href="pages/cart.html" class="text-green-700 hover:text-green-900"><i class="fas fa-shopping-cart"></i></a>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="product-card bg-white rounded-lg overflow-hidden shadow-md border border-gray-100 transition duration-300 hover-scale" data-product-id="3">
-                            <div class="relative h-48 overflow-hidden">
-                                <img src="https://images.unsplash.com/photo-1518977676601-b53f82aba655?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80" alt="Fresh Potatoes" class="w-full h-full object-cover">
-                                <div class="price-tag">NPR 50/kg</div>
-                                <div class="absolute top-2 left-2 bg-green-600 text-white text-xs px-2 py-1 rounded">New Harvest</div>
-                            </div>
-                            <div class="p-4">
-                                <h3 class="font-bold text-lg mb-1">Fresh Potatoes</h3>
-                                <div class="flex items-center text-sm text-gray-600 mb-2">
-                                    <i class="fas fa-map-marker-alt mr-1 text-green-600"></i> Pokhara
-                                </div>
-                                <div class="flex justify-between items-center">
-                                    <div class="flex items-center text-yellow-500">
-                                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
-                                        <span class="text-gray-600 text-xs ml-1">(32)</span>
-                                    </div>
-                                    <a href="pages/cart.html" class="text-green-700 hover:text-green-900"><i class="fas fa-shopping-cart"></i></a>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="product-card bg-white rounded-lg overflow-hidden shadow-md border border-gray-100 transition duration-300 hover-scale" data-product-id="4">
-                            <div class="relative h-48 overflow-hidden">
-                                <img src="https://images.unsplash.com/photo-1601493700631-2b16ec4b4716?ixlib=rb-4.0.3&auto=format&fit=crop&w=735&q=80" alt="Green Peas" class="w-full h-full object-cover">
-                                <div class="price-tag">NPR 90/kg</div>
-                            </div>
-                            <div class="p-4">
-                                <h3 class="font-bold text-lg mb-1">Sweet Green Peas</h3>
-                                <div class="flex items-center text-sm text-gray-600 mb-2">
-                                    <i class="fas fa-map-marker-alt mr-1 text-green-600"></i> Rupandehi
-                                </div>
-                                <div class="flex justify-between items-center">
-                                    <div class="flex items-center text-yellow-500">
-                                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i><i class="far fa-star"></i>
-                                        <span class="text-gray-600 text-xs ml-1">(12)</span>
-                                    </div>
-                                    <a href="pages/cart.html" class="text-green-700 hover:text-green-900"><i class="fas fa-shopping-cart"></i></a>
-                                </div>
+                            <div class="mt-4 flex justify-between items-center">
+                                {% if product.stock > 0 %}
+                                    <a href="{% url 'product_detail' product.id %}" class="w-full bg-green-600 text-white text-center py-2 rounded-lg hover:bg-green-700 transition">
+                                        View Details
+                                    </a>
+                                {% else %}
+                                    <span class="w-full text-center py-2 rounded-lg bg-red-500 text-white font-semibold">Out of Stock</span>
+                                {% endif %}
                             </div>
                         </div>
                     </div>
-                </div>
-            </section>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="text-gray-500 text-center">No products available.</p>
+        {% endif %}
+    </div>
+</section>
+
 
             <!-- How It Works Section -->
             <section class="py-16 bg-green-50">

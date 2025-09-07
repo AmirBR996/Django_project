@@ -5,6 +5,8 @@ from django.contrib.auth import authenticate, login, logout
 from .models import User  # Assuming User is a custom model with a password field
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import update_session_auth_hash
+from django.shortcuts import get_object_or_404
+from products.models import Product
 # Registration with hashed password
 def register(request):
     if request.method == 'POST':
@@ -66,8 +68,8 @@ def login_view(request):
 
 # Home view
 def home(request):
-    return render(request, 'home.html')
-
+    products = Product.objects.all()  # fetch all products
+    return render(request, 'home.html', {"products": products})
 # Logout view
 def logout_view(request):
     logout(request)
@@ -119,3 +121,7 @@ def profile_update(request):
         messages.success(request, "Profile updated successfully.")
         
     return redirect('profile')
+
+def product_detail(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+    return render(request, 'products.html', {"products": [product]})
