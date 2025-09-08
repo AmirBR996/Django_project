@@ -1,49 +1,13 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profile - Krishik Bazar</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Roboto+Slab:wght@400;500;600&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --primary: #1a5c40;
-            --secondary: #f5a623;
-            --accent: #3a86ff;
-        }
-        
-        body {
-            font-family: 'Poppins', sans-serif;
-            background-color: #f8f9fa;
-        }
-        
-        .nav-link.active {
-            color: var(--secondary);
-            border-bottom: 2px solid var(--secondary);
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .page {
-            animation: fadeIn 0.4s ease-out;
-        }
-        
-        .newsletter-bg {
-            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), 
-                         url('https://images.unsplash.com/photo-1500382017468-9049fed747ef?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80');
-            background-size: cover;
-            background-position: center;
-        }
-    </style>
+    <title>Your Cart - Krishi Bazar</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
-<body class="bg-gray-50 text-gray-800 min-h-screen flex flex-col">
-{% load static %}
-    <!-- Navigation Bar -->
+<body class="bg-gray-100 font-sans">
+     {% load static %}
     <nav class="bg-white shadow-lg sticky top-0 z-50">
         <div class="container mx-auto px-4 py-3 flex justify-between items-center">
             <!-- Logo -->
@@ -97,77 +61,56 @@
                     </div>
                 </div>
                 <!-- Cart -->
-                <a href="{% url 'payment:cart' %}" class="ml-2 text-gray-700 hover:text-green-700 relative">
-                    <i class="fas fa-shopping-cart text-xl"></i>
-                    <span id="cartCount" class="absolute -top-2 -right-2 bg-yellow-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">0</span>
-                </a>
             </div>
 
         </nav>
-    
-    <main class="flex-grow page">
-        <section class="py-16 bg-white">
-            <div class="container mx-auto px-4 max-w-2xl">
-                <h2 class="text-3xl font-bold text-center mb-8 text-green-800">Your Profile</h2>
-
-                <!-- Messages -->
-                {% if messages %}
-                    <ul class="mb-4">
-                    {% for message in messages %}
-                        <li {% if message.tags %} class="{{ message.tags }} text-center text-sm font-medium p-3 rounded-lg {% if 'success' in message.tags %} bg-green-100 text-green-700 {% elif 'error' in message.tags %} bg-red-100 text-red-700 {% endif %}"{% endif %}>{{ message }}</li>
-                    {% endfor %}
-                    </ul>
-                {% endif %}
-
-                <div class="bg-white rounded-lg shadow-md border border-gray-200 p-6">
-                    <div class="flex flex-col sm:flex-row items-center mb-6 text-center sm:text-left">
-                        <img src="https://placehold.co/64x64/1a5c40/ffffff?text={{ user.username|slice:":1"|upper }}" alt="User Profile Image" class="w-16 h-16 rounded-full mr-4 mb-4 sm:mb-0">
-                        <div>
-                            <h3 class="text-xl font-bold text-green-800">{{ user.username }}</h3>
-                            <p class="text-sm text-gray-600 capitalize">{{ user.role }}</p>
+    <div class="container mx-auto p-4">
+        <h1 class="text-3xl font-bold mb-6 text-center">Your Cart</h1>
+        {% if order and order.items.exists %}
+            <div class="bg-white shadow-md rounded-lg p-6">
+                {% for item in order.items.all %}
+                    <div class="flex items-center justify-between border-b py-4">
+                        <div class="flex items-center">
+                            {% if item.product.image %}
+                                <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" class="w-16 h-16 object-cover rounded mr-4">
+                            {% endif %}
+                            <div>
+                                {% load cart_filters %}
+                                <h2 class="text-lg font-semibold">{{ item.product.name }}</h2>
+                                <p class="text-gray-600">Price: NPR {{ item.price }}</p>
+                                <p class="text-gray-600">Subtotal: NPR {{ item.quantity|floatformat:2|multiply:item.price }}</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-4">
+                            <form method="post" action="{% url 'payment:update_cart_item' item.id %}" class="flex items-center">
+                                {% csrf_token %}
+                                <input type="number" name="quantity" value="{{ item.quantity }}" min="0" max="{{ item.product.stock }}" class="w-16 p-2 border rounded-lg">
+                                <button type="submit" class="ml-2 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">Update</button>
+                            </form>
+                            <form method="post" action="{% url 'payment:remove_cart_item' item.id %}">
+                                {% csrf_token %}
+                                <button type="submit" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600">Remove</button>
+                            </form>
                         </div>
                     </div>
-                    <form method="POST" action="{% url 'profile_update' %}">
-                        {% csrf_token %}
-                        <div class="mb-4">
-                            <label for="username" class="block text-sm font-medium text-gray-700">Username</label>
-                            <input type="text" id="username" name="username" value="{{ user.username }}" class="w-full px-4 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="Enter your full name">
-                        </div>
-                        <div class="mb-4">
-                            <label for="email" class="block text-sm font-medium text-gray-700">Email Address</label>
-                            <input type="email" id="email" name="email" value="{{ user.email }}" class="w-full px-4 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="Enter your email">
-                        </div>
-                        <div class="mb-4">
-                            <label for="phone" class="block text-sm font-medium text-gray-700">Phone Number</label>
-                            <input type="tel" id="phone" name="phone" value="{{ user.phone|default_if_none:'' }}" class="w-full px-4 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="Enter your phone number">
-                        </div>
-                        <div class="mb-4">
-                            <label for="address" class="block text-sm font-medium text-gray-700">Address</label>
-                            <input type="text" id="address" name="address" value="{{ user.address|default_if_none:'' }}" class="w-full px-4 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="Enter your address">
-                        </div>
-                        <div class="mb-4">
-                            <label for="role" class="block text-sm font-medium text-gray-700">User Role</label>
-                            <select id="role" name="role" class="w-full px-4 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
-                                {% for choice in user.ROLE_CHOICES %}
-                                    <option value="{{ choice.0 }}" {% if choice.0 == user.role %}selected{% endif %}>{{ choice.1 }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        <div class="mb-4">
-                            <label for="password" class="block text-sm font-medium text-gray-700">New Password</label>
-                            <input type="password" id="password" name="password" class="w-full px-4 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="Enter new password">
-                        </div>
-                        <div class="mb-4">
-                            <label for="confirm-password" class="block text-sm font-medium text-gray-700">Confirm New Password</label>
-                            <input type="password" id="confirm-password" name="confirm-password" class="w-full px-4 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="Confirm new password">
-                        </div>
-                        <button type="submit" class="w-full bg-green-700 text-white px-4 py-2 rounded-lg hover:bg-green-800 transition font-medium">Update Profile</button>
-                    </form>
+                {% endfor %}
+                <div class="mt-6">
+                    <p class="text-xl font-bold">Total: NPR {{ order.total_price|floatformat:2 }}</p>
+                    <a href="{% url 'payment:checkout' %}" class="mt-4 inline-block bg-green-500 text-white font-bold py-3 px-6 rounded-lg hover:bg-green-600">Proceed to Checkout</a>
                 </div>
             </div>
-        </section>
-    </main>
-
+        {% else %}
+            <p class="text-center text-gray-600">Your cart is empty.</p>
+            <a href="{% url 'view_products' %}" class="mt-4 inline-block bg-yellow-500 text-white font-bold py-3 px-6 rounded-lg hover:bg-yellow-600">Continue Shopping</a>
+        {% endif %}
+        {% if messages %}
+            <div class="mt-4">
+                {% for message in messages %}
+                    <p class="text-{% if message.tags == 'error' %}red{% else %}green{% endif %}-500">{{ message }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
     <footer class="bg-gray-900 text-gray-300 py-12">
             <div class="container mx-auto px-4 grid grid-cols-1 md:grid-cols-4 gap-8">
                 <div>

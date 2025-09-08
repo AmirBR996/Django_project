@@ -25,6 +25,7 @@ urlpatterns = [
     path('', include('user.urls')),
     # Include all product URLs from the 'products' app
     path('products/', include('products.urls')),
+    path('payment/', include('payment.urls')),
 ]
 
 # This is only needed when running in development mode

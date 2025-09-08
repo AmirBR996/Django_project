@@ -1,12 +1,13 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseForbidden
 from .models import Product
+from payment.models import Order, OrderItem  # Import from payment app
 from functools import wraps
-from django.shortcuts import get_object_or_404
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.models import Q
+
 def farmer_required(view_func):
     @wraps(view_func)
     def _wrapped_view(request, *args, **kwargs):
@@ -173,19 +174,37 @@ def product_detail(request, product_id):
     context = {
         'product': product,
     }
-    # Render the same template with a single product
     return render(request, 'products.html', context)
+
 @login_required
 def add_to_cart(request, product_id):
     product = get_object_or_404(Product, id=product_id)
-    
-    # This is placeholder logic. You will need to implement your
-    # actual cart management here.
-    # Example:
-    # cart = request.session.get('cart', {})
-    # cart[product.id] = cart.get(product.id, 0) + 1
-    # request.session['cart'] = cart
-    
-    messages.success(request, f"{product.name} has been added to your cart!")
-    
-    return redirect('product_detail', product_id=product_id)
+    quantity = int(request.POST.get('quantity', 1))
+
+    if quantity > product.stock:
+        messages.error(request, f"Only {product.stock} items available in stock.")
+        return redirect('product_detail', product_id=product.id)
+
+    # Get or create a pending order (cart) for the user
+    order, created = Order.objects.get_or_create(
+        user=request.user,
+        status='cart'  # Assuming 'cart' is a status for pending orders
+    )
+
+    # Check if the product is already in the cart
+    order_item, created = OrderItem.objects.get_or_create(
+        order=order,
+        product=product,
+        defaults={'quantity': quantity, 'price': product.price}
+    )
+
+    if not created:
+        # Update quantity if item already exists
+        if order_item.quantity + quantity > product.stock:
+            messages.error(request, f"Cannot add {quantity} more. Only {product.stock - order_item.quantity} left in stock.")
+            return redirect('product_detail', product_id=product.id)
+        order_item.quantity += quantity
+        order_item.save()
+
+    messages.success(request, f"{quantity} x {product.name} added to cart.")
+    return redirect('payment:cart')  # Corrected redirect

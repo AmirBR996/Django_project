@@ -22,3 +22,7 @@ class Product(models.Model):
     
     def __str__(self):
         return self.name
+
+def cart_view(request):
+    order = Order.objects.filter(user=request.user, status='cart').first()
+    return render(request, 'payment/cart.html', {'order': order})

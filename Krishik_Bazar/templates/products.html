@@ -19,45 +19,67 @@
     </style>
 </head>
 <body class="bg-gray-50 text-gray-800 min-h-screen flex flex-col">
-
+ {% load static %}
     <nav class="bg-white shadow-lg sticky top-0 z-50">
-        <div class="bg-gradient-to-r from-yellow-400 to-yellow-500 text-black text-center py-3 px-4 text-sm font-medium">
-            <span class="animate-pulse"><i class="fas fa-tractor"></i></span> 
-            Special Offer: Free Delivery on Orders Over NPR 5000 This Week! 
-            <span class="animate-pulse"><i class="fas fa-seedling"></i></span>
-        </div>
         <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <!-- Logo -->
             <a href="{% url 'home' %}" class="text-2xl font-bold flex items-center text-green-800">
-                <img src="https://via.placeholder.com/40x40?text=KB" alt="Krishi Bazar Logo" class="h-10 w-10 mr-2 rounded-full">
+                <img src="{% static "krisik.png" %}" alt="Krishi Bazar Logo" class="h-10 w-10 mr-2 rounded-full">
                 <span class="hidden sm:inline font-roboto-slab">Krishik Bazar</span>
             </a>
+
+            <!-- Navigation Links -->
             <div class="hidden lg:flex space-x-1 items-center">
-                <a href="{% url 'home' %}" class="nav-link px-4 py-2 hover:text-green-700 transition font-medium">Home</a>
-                <a href="{% url 'view_products' %}" class="nav-link px-4 py-2 hover:text-green-700 transition font-medium active">Products</a>
-                <a href="pages/market.html" class="nav-link px-4 py-2 hover:text-green-700 transition font-medium">Market Prices</a>
+                <a href="{% url 'home' %}" class="nav-link px-4 py-2 hover:text-green-700 transition font-medium active">Home</a>
+                <a href="{% url 'products' %}" class="nav-link px-4 py-2 hover:text-green-700 transition font-medium">Products</a>
                 {% if user.is_authenticated and user.role == 'farmer' %}
-                    <a href="{% url 'add_product' %}" class="nav-link px-4 py-2 hover:text-green-700 transition font-medium">Add Product</a>
+                    <a href="{% url 'add_product' %}" class="nav-link px-4 py-2 hover:text-green-700 transition font-medium active">Add Product</a>
                 {% endif %}
-                <a href="pages/services.html" class="nav-link px-4 py-2 hover:text-green-700 transition font-medium">Services</a>
-                <a href="contact.html" class="nav-link px-4 py-2 hover:text-green-700 transition font-medium">Contact</a>
                 {% if user.is_authenticated %}
-                    <a href="{% url 'profile' %}" class="nav-link px-4 py-2 hover:text-green-700 transition font-medium">Profile</a>
-                {% endif %}
-            </div>
-            <div id="auth-buttons" class="ml-4 flex items-center space-x-2">
-                {% if user.is_authenticated %}
-                    <a href="{% url 'logout' %}" id="logoutBtn" class="auth-links bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition font-medium flex items-center">
-                        <i class="fas fa-sign-out-alt mr-2"></i> Logout
-                    </a>
+                         <a href="{% url 'profile' %}" class="nav-link px-4 py-2 hover:text-green-700 transition font-medium">Profile</a>
                 {% else %}
-                    <a href="{% url 'login' %}" id="loginLink" class="auth-links bg-green-700 text-white px-4 py-2 rounded-lg hover:bg-green-800 transition font-medium flex items-center">
-                        <i class="fas fa-user mr-2"></i> Login
-                    </a>
-                    <a href="{% url 'register' %}" class="auth-links text-green-700 hover:text-green-900 transition font-medium">Register</a>
                 {% endif %}
+                <!-- Search Bar -->
+                <form method="GET" action="{% url 'view_products' %}" class="relative">
+                            <input type="text" name="q" value="{{ request.GET.q|default_if_none:'' }}" placeholder="Search products..." class="w-full pl-10 pr-4 py-2 border rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
+                            <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                            <button type="submit" class="hidden">Search</button>
+                        </form>
+                <!-- Auth Buttons -->
+                <div id="auth-buttons" class="ml-4 flex items-center space-x-2">
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'logout' %}" id="logoutBtn" class="auth-links bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition font-medium flex items-center">
+                            <i class="fas fa-sign-out-alt mr-2"></i> Logout
+                        </a>
+                    {% else %}
+                        <a href="{% url 'login' %}" id="loginLink" class="auth-links bg-green-700 text-white px-4 py-2 rounded-lg hover:bg-green-800 transition font-medium flex items-center">
+                            <i class="fas fa-user mr-2"></i> Login
+                        </a>
+                        <a href="{% url 'register' %}" class="auth-links text-green-700 hover:text-green-900 transition font-medium">Register</a>
+                    {% endif %}
+                </div>
+
+                <!-- User Menu -->
+                <div class="hidden relative user-links" id="userMenu">
+                    <button class="flex items-center space-x-2 text-green-700 hover:text-green-900">
+                        <i class="fas fa-user-circle text-xl"></i>
+                        <span id="userEmail" class="user-info"></span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="dropdown-menu absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl py-2 z-50">
+                        <a href="pages/products.html" class="block px-4 py-2 text-gray-800 hover:bg-gray-100">Products</a>
+                        <a href="pages/orders.html" class="block px-4 py-2 text-gray-800 hover:bg-gray-100">Orders</a>
+                        <a href="{% url 'logout' %}" id="dropdownLogoutBtn" class="block px-4 py-2 text-red-600 hover:bg-gray-100">Logout</a>
+                    </div>
+                </div>
+                <!-- Cart -->
+                <a href="{% url 'payment:cart' %}" class="ml-2 text-gray-700 hover:text-green-700 relative">
+                    <i class="fas fa-shopping-cart text-xl"></i>
+                    <span id="cartCount" class="absolute -top-2 -right-2 bg-yellow-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">0</span>
+                </a>
             </div>
-        </div>
-    </nav>
+
+        </nav>
     
     <main class="flex-grow py-12">
         <div class="container mx-auto px-4">
@@ -76,33 +98,19 @@
                         <span class="text-sm text-gray-500">Added: {{ product.created_at|date:"F j, Y" }}</span>
                     </div>
                     {% if product.stock > 0 %}
-                        <a href="{% url 'add_to_cart' product.id %}" class="bg-yellow-500 text-white font-bold py-3 px-6 rounded-lg hover:bg-yellow-600 transition-colors w-full text-center block">
-                            <i class="fas fa-shopping-cart mr-2"></i> Add to Cart
-                        </a>
-                    {% else %}
-                        <span class="bg-red-500 text-white font-bold py-3 px-6 rounded-lg w-full text-center block">
-                            Out of Stock
-                        </span>
-                    {% endif %}
-                </div>
-            </div>
-        {% else %}
-                    {% if products %}
-                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                            {% for item in products %}
-                                {% endfor %}
-                        </div>
-                        {% else %}
-                        <div class="text-center bg-white p-12 rounded-lg shadow-md">
-                            <i class="fas fa-box-open text-6xl text-gray-400 mb-4"></i>
-                            <h2 class="text-2xl font-bold text-gray-600">No Products Found</h2>
-                            <p class="text-gray-500 mt-2">Try adjusting your search or filter criteria.</p>
-                        </div>
-                    {% endif %}
+    <form method="post" action="{% url 'add_to_cart' product.id %}" class="w-full">
+        {% csrf_token %}
+        <input type="number" name="quantity" value="1" min="1" max="{{ product.stock }}" class="w-20 p-2 border rounded-lg mr-2">
+        <button type="submit" class="bg-yellow-500 text-white font-bold py-3 px-6 rounded-lg hover:bg-yellow-600 transition-colors w-full text-center">
+            <i class="fas fa-shopping-cart mr-2"></i> Add to Cart
+        </button>
+    </form>
+{% else %}
+    <p class="text-red-500 font-bold">Out of Stock</p>
+{% endif %}
                 </div>
             </div>
         {% endif %}
-    </div>
         <div class="container mx-auto px-4">
             <h1 class="text-4xl font-bold text-center text-green-800 mb-8">Available Products</h1>
 
@@ -219,49 +227,53 @@
         </div>
     </main>
     
-    <footer class="bg-gray-900 text-gray-300 py-12 mt-8">
-        <div class="container mx-auto px-4 grid grid-cols-1 md:grid-cols-4 gap-8">
-            <div>
-                <h3 class="text-2xl font-bold text-white mb-4 font-roboto-slab">Krishi Bazar</h3>
-                <p class="text-sm">Empowering Nepal's farmers and buyers for a sustainable agricultural future.</p>
-            </div>
-            <div>
-                <h4 class="font-bold text-white mb-4">Quick Links</h4>
-                <ul class="space-y-2">
-                    <li><a href="{% url 'home' %}" class="hover:text-white transition">Home</a></li>
-                    <li><a href="{% url 'view_products' %}" class="hover:text-white transition">Products</a></li>
-                    <li><a href="pages/market.html" class="hover:text-white transition">Market Prices</a></li>
-                    <li><a href="pages/services.html" class="hover:text-white transition">Services</a></li>
-                    <li><a href="{% url 'add_product' %}" class="hover:text-white transition">Add Product</a></li>
-                </ul>
-            </div>
-            <div>
-                <h4 class="font-bold text-white mb-4">Explore</h4>
-                <ul class="space-y-2">
-                    <li><a href="{% url 'view_products' %}?category=vegetable" class="hover:text-white transition">Fresh Produce</a></li>
-                    <li><a href="{% url 'view_products' %}?category=grain" class="hover:text-white transition">Grains</a></li>
-                    <li><a href="#" class="hover:text-white transition">Seeds</a></li>
-                    <li><a href="#" class="hover:text-white transition">Equipment</a></li>
-                    <li><a href="#" class="hover:text-white transition">Fertilizers</a></li>
-                </ul>
-            </div>
-            <div>
-                <h4 class="font-bold text-white mb-4">Contact Us</h4>
-                <p class="text-sm">Krishi Sadak, Kathmandu, Nepal</p>
-                <p class="text-sm mt-2">Email: support@krishibazar.com</p>
-                <p class="text-sm">Phone: +977-1-234-5678</p>
-                <div class="flex space-x-4 mt-4 text-xl">
-                    <a href="#" class="hover:text-white transition"><i class="fab fa-facebook-f"></i></a>
-                    <a href="#" class="hover:text-white transition"><i class="fab fa-twitter"></i></a>
-                    <a href="#" class="hover:text-white transition"><i class="fab fa-instagram"></i></a>
-                    <a href="#" class="hover:text-white transition"><i class="fab fa-linkedin-in"></i></a>
+   <footer class="bg-gray-900 text-gray-300 py-12">
+            <div class="container mx-auto px-4 grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="text-2xl font-bold text-white mb-4 font-roboto-slab">Krishi Bazar</h3>
+                    <p class="text-sm">Empowering Nepal's farmers and buyers for a sustainable agricultural future.</p>
+                </div>
+                <div>
+                    <h4 class="font-bold text-white mb-4">Quick Links</h4>
+                    <ul class="space-y-2">
+                        <li><a href="{% url 'home' %}" class="hover:text-white transition">Home</a></li>
+                        <li><a href="{% url 'products' %}" class="hover:text-white transition">Products</a></li>
+                        {% if user.is_authenticated and user.role == 'farmer' %}
+                    <li><a href="{% url 'products' %}" class="hover:text-white transition">Add Products</a></li>
+                {% endif %}
+                {% if user.is_authenticated %}
+                    <li><a href="{% url 'profile' %}" class="hover:text-white transition">profile</a></li>
+                {% else %}
+                {% endif %}
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-bold text-white mb-4">Explore</h4>
+                    <ul class="space-y-2">
+                        <li><a href="{% url 'products' %}" class="hover:text-white transition">Fruits</a></li>
+                        <li><a href="{% url 'products' %}" class="hover:text-white transition">Grains</a></li>
+                        <li><a href="{% url 'products' %}" class="hover:text-white transition">Vegetables</a></li>
+                        <li><a href="{% url 'products' %}" class="hover:text-white transition">Dairy</a></li>
+                        <li><a href="{% url 'products' %}" class="hover:text-white transition">Others</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-bold text-white mb-4">Contact Us</h4>
+                    <p class="text-sm">Shantinagar, Kathmandu, Nepal</p>
+                    <p class="text-sm mt-2">Email: amirbhattrai861@gmail.com</p>
+                    <p class="text-sm">Phone: +977 9818585524</p>
+                    <div class="flex space-x-4 mt-4 text-xl">
+                        <a href="#" class="hover:text-white transition"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="hover:text-white transition"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="hover:text-white transition"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="hover:text-white transition"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="border-t border-gray-700 mt-8 pt-8 text-center text-sm text-gray-500">
-            &copy; 2025 Krishi Bazar. All Rights Reserved.
-        </div>
-    </footer>
+            <div class="border-t border-gray-700 mt-8 pt-8 text-center text-sm text-gray-500">
+                &copy; 2025 Krishi Bazar. All Rights Reserved.
+            </div>
+        </footer>
 
 </body>
 </html>
